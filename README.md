@@ -1,5 +1,17 @@
 # psst
 PeopleSoft Secrets Tool
+```
+$ psst --help
+Usage: psst [OPTIONS] COMMAND [ARGS]...
+
+  PeopleSoft Secrets Tool
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  secrets  Working with PeopleSoft Environment secrets
+```
 
 # Usage
 ```
@@ -19,13 +31,7 @@ $ psst secrets generate
 # Installing
 ```
 cd psst
-pip install
-```
-
-# Running directly
-```
-cd psst
-python3 -m psst
+pip install .
 ```
 
 # Setting up for development
