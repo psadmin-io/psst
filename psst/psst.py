@@ -1,10 +1,8 @@
 import json
 import click
 import getpass
-#import oci
 
 import psst.secrets
-import psst.ocivault
 
 class Config(object):
 
@@ -14,11 +12,10 @@ class Config(object):
 pass_config = click.make_pass_decorator(Config, ensure=True)
 
 @click.group(no_args_is_help=True)
-@click.option('--verbose', is_flag=True)
 @pass_config
-def cli(config, verbose):
+def cli(config):
     """PeopleSoft Secrets Tool"""
-    config.verbose = verbose
+    pass    
 
 @cli.group()
 def secrets():
