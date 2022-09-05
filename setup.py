@@ -3,16 +3,14 @@ from pathlib import Path
 
 HERE = Path(__file__).parent
 README = (HERE / "README.md").read_text()
-HISTORY = (HERE / "HISTORY.md").read_text()
 
 setup_args = dict(
     name='psst',
     version='0.0.0',
     description='psst',
     long_description_content_type="text/markdown",
-    long_description=README + '\n\n' + HISTORY,
-    url='https://github.com/psadmin-io/psst',
-    
+    long_description=README,
+    url='https://github.com/psadmin-io/psst',    
     author='psadmin.io',
     author_email='info@psadmin.io',
     license='MIT',
