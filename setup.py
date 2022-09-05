@@ -6,7 +6,7 @@ README = (HERE / "README.md").read_text()
 
 setup_args = dict(
     name='psst',
-    version='0.0.0',
+    version='0.0.1',
     description='psst',
     long_description_content_type="text/markdown",
     long_description=README,
