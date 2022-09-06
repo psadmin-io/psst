@@ -1,8 +1,9 @@
 import json
+from typing_extensions import Required
 import click
-import getpass
 
 import psst.secrets
+import psst.vault
 
 class Config(object):
 
@@ -19,7 +20,7 @@ def cli(config):
 
 @cli.group()
 def secrets():
-    """Working with PeopleSoft Environment secrets"""
+    """Working with secrets"""
     pass
 
 @secrets.command()
@@ -37,3 +38,19 @@ def generate():
     dict["wls_admin_user_pwd"] = psst.secrets.wls_admin_user_pwd.generate()
 
     click.echo(json.dumps(dict, indent=4))
+
+@cli.group()
+def vault():
+    """Working with secrets in Vaults"""
+    pass
+
+@vault.command()
+@click.option('--type', 'string', default="oci", show_default=True)
+@click.option('--name','string',required=True)
+@click.option('--compartment-id','string',required=True)
+def generate(type, name, compartment_id):
+    """Generate a vault"""
+    if type == "oci":
+        # TODO this all needs error checking
+        ocicfg = psst.vault.oci.config()
+        vault = psst.vault.oci.create(ocicfg, name, compartment_id)            

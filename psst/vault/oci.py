@@ -2,35 +2,27 @@ import oci
 import time
 import base64
 
-# TODO    
-# click.echo(secrets_file.readlines())
-    
-# ocicfg = oci.config.from_file()
-# ocicfg["region"] = "us-sanjose-1" # TODO - set region?
-
-# vault = ocivault.create_vault(ocicfg, compartment_id, vault_name)
-# key = ocivault.create_key(ocicfg, vault, key_name)
-
-# secrets = json.load(secrets_file)
-# for secret_name, secret_content in secrets.items():
-#     # ocivault.create_secret(ocicfg, compartment_id, vault.data, key.data, secret_name, secret_content, secret_name)
-#     click.echo(f"name: {secret_name} value: {secret_content}")
-
-
 def config():
     config = oci.config.from_file()
     config["region"] = "us-sanjose-1" # TODO - set region?
 
     return config
 
-def create_vault(ocicfg, compartment_id, vault_name):
+def create(ocicfg, name, compartment_id, secrets_dict):
+    vault = create_vault(ocicfg, name, compartment_id)
+    key = create_key(ocicfg, "masterkey", vault.management_endpoint, compartment_id)
+    
+    for name, content in secrets_dict.items():
+        create_secret(ocicfg, vault.id, key.id, compartment_id, name, content, name)
+
+def create_vault(ocicfg, name, compartment_id):
     print("Creating Vault")
     key_management_client = oci.key_management.KmsVaultClient(ocicfg)
 
     create_vault_response = key_management_client.create_vault(
         create_vault_details=oci.key_management.models.CreateVaultDetails(
             compartment_id=compartment_id,
-            display_name=vault_name,
+            display_name=name,
             vault_type="DEFAULT"),
             # TODO - tags?
             # defined_tags={
@@ -55,15 +47,15 @@ def create_vault(ocicfg, compartment_id, vault_name):
 
     return vault.data
 
-def create_key(ocicfg, compartment_id, vault, key_name):
+def create_key(ocicfg, name, vault_mgmt, compartment_id):
     print("Creating Key")
 
-    key_management_client = oci.key_management.KmsManagementClient(ocicfg, vault.data.management_endpoint)
+    key_management_client = oci.key_management.KmsManagementClient(ocicfg, vault_mgmt)
 
     create_key_response = key_management_client.create_key(
         create_key_details=oci.key_management.models.CreateKeyDetails(
             compartment_id=compartment_id,
-            display_name=key_name,
+            display_name=name,
             key_shape=oci.key_management.models.KeyShape(
                 algorithm="AES",
                 length=32,
@@ -91,7 +83,7 @@ def create_key(ocicfg, compartment_id, vault, key_name):
 
     return key.data
 
-def create_secret(ocicfg, compartment_id, vault, key, secret_name, secret_content, secret_descr):
+def create_secret(ocicfg, vault_id, key_id, compartment_id, secret_name, secret_content, secret_descr):
     vault_client = oci.vault.VaultsClient(ocicfg)
     create_secret_response = vault_client.create_secret(
         create_secret_details=oci.vault.models.CreateSecretDetails(
@@ -103,8 +95,8 @@ def create_secret(ocicfg, compartment_id, vault, key, secret_name, secret_conten
                 content=base64.b64encode(secret_content.encode('ascii')).decode('ascii') # str > bytes > base64 > str
             ),
             secret_name=secret_name,
-            vault_id=vault.id,
-            key_id=key.id,
+            vault_id=vault_id,
+            key_id=key_id,
             description=secret_descr
             # defined_tags={
             #     'EXAMPLE_KEY_L44xi': {
