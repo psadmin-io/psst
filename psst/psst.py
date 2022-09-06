@@ -12,7 +12,6 @@ class Config(object):
 pass_config = click.make_pass_decorator(Config, ensure=True)
 
 @click.group(no_args_is_help=True)
-# @click.pass_obj
 @pass_config
 
 def cli(config):
