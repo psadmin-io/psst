@@ -3,10 +3,10 @@ import array
 
 # Domain boot user (CLADM/PS/VP1) password. 
 # Only alphanumeric characters .
-# 8 characters in length.
+# 8 characters in length for Cloud Manager
+# 25 characters default
 
 MIN_LEN = 8
-MAX_LEN = 8
 
 DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 LOCASE_CHARACTERS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
@@ -21,7 +21,12 @@ UPCASE_CHARACTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
 
 COMBINED_LIST = DIGITS + UPCASE_CHARACTERS + LOCASE_CHARACTERS
 
-def generate():
+def generate(cloud_manager):
+	if cloud_manager:
+		MAX_LEN = 8
+	else:
+		MAX_LEN = 25
+
 	# randomly select at least one character from each character set above
 	rand_digit = random.choice(DIGITS)
 	rand_upper = random.choice(UPCASE_CHARACTERS)
