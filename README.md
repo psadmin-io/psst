@@ -39,7 +39,7 @@ pip install .
 pip install virtualenv 
 
 cd psst
-virtualenv venv
+virtualenv -p python3 venv
 . venv/bin/activate
 
 pip install --editable .
