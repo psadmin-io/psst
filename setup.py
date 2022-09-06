@@ -21,7 +21,7 @@ setup_args = dict(
     packages=find_packages(),
     keywords=['PeopleSoft', 'PeopleTools', 'OCI', 'Oracle Cloud Infrastructure', 'Oracle Cloud'],    
     include_package_data=True,
-    install_requires=["Click"],
+    install_requires=["Click","oci","monotonic","typing"],
     entry_points={
         "console_scripts": [
             "psst=psst.psst:cli",

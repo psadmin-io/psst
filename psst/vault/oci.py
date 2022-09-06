@@ -4,7 +4,7 @@ import base64
 
 def config():
     config = oci.config.from_file()
-    config["region"] = "us-sanjose-1" # TODO - set region?
+    #config["region"] = "" # TODO - set region?
 
     return config
 

@@ -1,5 +1,4 @@
 import json
-from typing_extensions import Required
 import click
 
 import psst.secrets
@@ -27,7 +26,6 @@ def secrets():
 def generate():
     """Generate a dictionary of secrets"""
     dict = {}
-
     dict["access_pwd"] = psst.secrets.access_pwd.generate()
     dict["db_connect_pwd"] = psst.secrets.db_connect_pwd.generate()
     dict["db_user_pwd"] = psst.secrets.db_user_pwd.generate()
@@ -45,12 +43,23 @@ def vault():
     pass
 
 @vault.command()
-@click.option('--type', 'string', default="oci", show_default=True)
-@click.option('--name','string',required=True)
-@click.option('--compartment-id','string',required=True)
+@click.option('--type', default="oci", show_default=True)
+@click.option('--name', required=True)
+@click.option('--compartment-id', required=True)
 def generate(type, name, compartment_id):
-    """Generate a vault"""
+    """Generate a vault. Currently defaults a lot, including generated secrets..."""
     if type == "oci":
         # TODO this all needs error checking
         ocicfg = psst.vault.oci.config()
-        vault = psst.vault.oci.create(ocicfg, name, compartment_id)            
+        # TODO - generate dict
+        dict = {}
+        dict["access_pwd"] = psst.secrets.access_pwd.generate()
+        dict["db_connect_pwd"] = psst.secrets.db_connect_pwd.generate()
+        dict["db_user_pwd"] = psst.secrets.db_user_pwd.generate()
+        dict["domain_conn_pwd"] = psst.secrets.domain_conn_pwd.generate()
+        dict["pia_gateway_admin_pwd"] = psst.secrets.pia_gateway_admin_pwd.generate()
+        dict["pia_webprofile_user_pwd"] = psst.secrets.pia_webprofile_user_pwd.generate()
+        dict["pskey_password"] = psst.secrets.pskey_password.generate()
+        dict["wls_admin_user_pwd"] = psst.secrets.wls_admin_user_pwd.generate()
+              
+        vault = psst.vault.oci.create(ocicfg, name, compartment_id, dict)            
