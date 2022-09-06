@@ -23,12 +23,17 @@ def secrets():
     pass
 
 @secrets.command()
-def generate():
+@click.option('-cm', '--cloud-manager', 
+              default=False, 
+              help="Set Cloud Manager Mode for password lengths", 
+              is_flag=True)
+def generate(cloud_manager):
     """Generate a dictionary of secrets"""
     dict = {}
-    dict["access_pwd"] = psst.secrets.access_pwd.generate()
+
+    dict["access_pwd"] = psst.secrets.access_pwd.generate(cloud_manager)
     dict["db_connect_pwd"] = psst.secrets.db_connect_pwd.generate()
-    dict["db_user_pwd"] = psst.secrets.db_user_pwd.generate()
+    dict["db_user_pwd"] = psst.secrets.db_user_pwd.generate(cloud_manager)
     dict["domain_conn_pwd"] = psst.secrets.domain_conn_pwd.generate()
     dict["pia_gateway_admin_pwd"] = psst.secrets.pia_gateway_admin_pwd.generate()
     dict["pia_webprofile_user_pwd"] = psst.secrets.pia_webprofile_user_pwd.generate()
