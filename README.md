@@ -14,6 +14,7 @@ Commands:
 ```
 
 # Usage
+## secrets
 ```
 $ psst secrets generate
 {
@@ -27,6 +28,16 @@ $ psst secrets generate
     "wls_admin_user_pwd": "ispTFU7ami!oGME@n^ARtKTv6K@Tf&"
 }
 ```
+
+## vault
+```
+$ c_id=ocid1.compartment.oc1....
+$ psst vault generate --name myvault --compartment-id $c_id 
+...
+...
+Vault created.
+```
+
 
 # Installing
 ```
