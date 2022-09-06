@@ -14,6 +14,7 @@ Commands:
 ```
 
 # Usage
+## secrets
 ```
 $ psst secrets generate
 {
@@ -28,6 +29,16 @@ $ psst secrets generate
 }
 ```
 
+## vault
+```
+$ c_id=ocid1.compartment.oc1....
+$ psst vault generate --name myvault --compartment-id $c_id 
+...
+...
+Vault created.
+```
+
+
 # Installing
 ```
 cd psst
@@ -39,7 +50,7 @@ pip install .
 pip install virtualenv 
 
 cd psst
-virtualenv venv
+virtualenv -p python3 venv
 . venv/bin/activate
 
 pip install --editable .
