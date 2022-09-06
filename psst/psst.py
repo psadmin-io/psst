@@ -13,7 +13,6 @@ pass_config = click.make_pass_decorator(Config, ensure=True)
 
 @click.group(no_args_is_help=True)
 @pass_config
-
 def cli(config):
     """PeopleSoft Secrets Tool"""
     pass    
