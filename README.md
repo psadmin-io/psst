@@ -54,6 +54,24 @@ psst secrets generate -cm
 }
 ```
 
+### OCI Image Mode
+
+If you are building an OCI Marketplace PeopleSoft Image, you need to provide a JSON-formatted string to set the passwords. Use `-oci` (or `--oci-image`) and `psst` will output a JSON formatted string you can paste directly into User Data.
+
+```
+psst secrets generate -oci
+{
+    "connect_pwd": "nwO6FBKZAuuwDvKPjuN5m1HwCd3frb",
+    "access_pwd": "VWQMf7bix6wIO4JwIeVpNHmS0",
+    "admin_pwd": "#pcC_Gx4DebI2G6sd02oB9#QsShrV1",
+    "weblogic_admin_pwd": "MZf74I9sc78ZTeswrFfO5nWhtxng##",
+    "webprofile_user_pwd": "orRI5YwRkKT2vvE8FfFwh8K6UJQsPG",
+    "gw_user_pwd": "nn40ZII2iXR8eES2RUw9rpuar9EMuW",
+    "domain_conn_pwd": "MkhvZpmGJQr9gai1JtR",
+    "opr_pwd": "DUKDgasnZda8nVQ88ZG16djup"
+}
+```
+
 ## vault
 ```
 $ c_id=ocid1.compartment.oc1....
