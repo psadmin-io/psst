@@ -38,38 +38,42 @@ def generate(cloud_manager, oci_image, name):
     """Generate a dictionary of secrets"""
 
     dict = {}
-
-    if name:
-        for n in name:
-            dict[n] = eval("psst.secrets." + n + ".generate()")
-    else:
-        dict["db_user_pwd"] = psst.secrets.db_user_pwd.generate(cloud_manager)
-        dict["access_pwd"] = psst.secrets.access_pwd.generate(cloud_manager)
-        dict["es_admin_pwd"] = psst.secrets.es_admin_pwd.generate()
-        dict["es_proxy_pwd"] = psst.secrets.es_proxy_pwd.generate()
-        dict["wls_admin_user_pwd"] = psst.secrets.wls_admin_user_pwd.generate()
-        if cloud_manager or oci_image:
-            dict["db_admin_pwd"] = psst.secrets.db_admin_pwd.generate()
-        dict["db_connect_pwd"] = psst.secrets.db_connect_pwd.generate()
-        dict["pia_gateway_admin_pwd"] = psst.secrets.pia_gateway_admin_pwd.generate()
-        dict["pia_webprofile_user_pwd"] = psst.secrets.pia_webprofile_user_pwd.generate()
-        dict["domain_conn_pwd"] = psst.secrets.domain_conn_pwd.generate()
-        dict["pskey_password"] = psst.secrets.pskey_password.generate()
-        if cloud_manager:
-            dict["windows_password"] = psst.secrets.windows_pwd.generate()
+    secrets = []    
     
+    if name:
+        # If named secrets, use that list
+        for n in name:
+            secrets.append(n) if n in dir(psst.secrets) else print(n + " is not a vaild secret name, ignoring.")
+    else:
         if oci_image:
-            ocidict = {}
-            ocidict["connect_pwd"] = dict["db_connect_pwd"]
-            ocidict["access_pwd"] = dict["access_pwd"]
-            ocidict["admin_pwd"] = dict["db_admin_pwd"]
-            ocidict["weblogic_admin_pwd"] = dict["wls_admin_user_pwd"]
-            ocidict["webprofile_user_pwd"] = dict["pia_webprofile_user_pwd"]
-            ocidict["gw_user_pwd"] = dict["pia_gateway_admin_pwd"]
-            ocidict["domain_conn_pwd"] = dict["domain_conn_pwd"]
-            ocidict["opr_pwd"] = dict["db_user_pwd"]
-            dict = ocidict
+            # TODO is this all we need or do we need defaults PLUS these?
+            secrets.append("connect_pwd")
+            secrets.append("access_pwd")
+            secrets.append("admin_pwd")
+            secrets.append("weblogic_admin_pwd")
+            secrets.append("webprofile_user_pwd")
+            secrets.append("gw_user_pwd")
+            secrets.append("domain_conn_pwd")
+            secrets.append("opr_pwd")
+            secrets.append("db_admin_pwd")
+        else:   
+            # Else use all secrets
+            secrets.append("db_user_pwd")
+            secrets.append("access_pwd")
+            secrets.append("es_admin_pwd")
+            secrets.append("es_proxy_pwd")
+            secrets.append("wls_admin_user_pwd")
+            secrets.append("db_connect_pwd")
+            secrets.append("pia_gateway_admin_pwd")
+            secrets.append("pia_webprofile_user_pwd")
+            secrets.append("domain_conn_pwd")
+            secrets.append("pskey_password")
+            if cloud_manager:
+                secrets.append("db_admin_pwd")
+                secrets.append("windows_password")
 
+    for s in secrets:
+        dict[s] = eval("psst.secrets." + s + ".generate(cloud_manager)")
     click.echo(json.dumps(dict, indent=4))
 
 @cli.group()
