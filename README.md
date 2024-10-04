@@ -85,7 +85,7 @@ Vault created.
 # Installing
 ```
 cd psst
-pip install .
+pip install --user .
 ```
 
 # Setting up for development
