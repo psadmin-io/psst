@@ -109,6 +109,6 @@ def generate(type, name, compartment_id, cloud_manager):
         dict["domain_conn_pwd"] = psst.secrets.domain_conn_pwd.generate(cloud_manager)
         dict["pskey_password"] = psst.secrets.pskey_password.generate(cloud_manager)
         if cloud_manager:
-            dict["windows_password"] = psst.secrets.windows_pwd.generate(cloud_manager)
+            dict["windows_password"] = psst.secrets.windows_password.generate(cloud_manager)
               
         vault = psst.vault.oci.create(ocicfg, name, compartment_id, dict)

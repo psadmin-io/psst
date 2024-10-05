@@ -10,4 +10,4 @@ from .pia_gateway_admin_pwd import generate
 from .pia_webprofile_user_pwd import generate
 from .es_admin_pwd import generate
 from .es_proxy_pwd import generate
-from .windows_pwd import generate
+from .windows_password import generate
