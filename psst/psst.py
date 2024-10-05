@@ -103,10 +103,10 @@ def generate(type, name, compartment_id, cloud_manager):
         dict["wls_admin_user_pwd"] = psst.secrets.wls_admin_user_pwd.generate()
         if cloud_manager:
             dict["db_admin_pwd"] = psst.secrets.db_admin_pwd.generate()
-        dict["db_connect_pwd"] = psst.secrets.db_connect_pwd.generate()()
+        dict["db_connect_pwd"] = psst.secrets.db_connect_pwd.generate()
         dict["pia_gateway_admin_pwd"] = psst.secrets.pia_gateway_admin_pwd.generate()
         dict["pia_webprofile_user_pwd"] = psst.secrets.pia_webprofile_user_pwd.generate()
-        dict["domain_conn_pwd"] = psst.secrets.domain_conn_pwd.generate
+        dict["domain_conn_pwd"] = psst.secrets.domain_conn_pwd.generate()
         dict["pskey_password"] = psst.secrets.pskey_password.generate()
         if cloud_manager:
             dict["windows_password"] = psst.secrets.windows_pwd.generate()
