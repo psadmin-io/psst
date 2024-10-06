@@ -46,6 +46,8 @@ def create_vault(ocicfg, name, compartment_id):
     if vault.data.lifecycle_state != "ACTIVE":
         raise SystemExit("ERROR: There was an issue creating the vault. [{}]".format(vault.data.lifecycle_state))
 
+    print("Vault created: {}".format(create_vault_response.data.id))
+
     return vault.data
 
 def create_key(ocicfg, name, vault_mgmt, compartment_id):
