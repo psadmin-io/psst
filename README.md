@@ -17,6 +17,7 @@ Commands:
 # Usage
 ## secrets
 ```
+# Generate All Secrets
 $ psst secrets generate
 {
     "db_user_pwd": "WTM7Dx3ha9wpQbu1A60q7rhTP",
@@ -30,6 +31,19 @@ $ psst secrets generate
     "domain_conn_pwd": "WoVv1mWZ25cR93Mmc9m",
     "pskey_password": "JNnPyqu7KF7es8ahGC13Si2BQDtN07"
 }
+
+# Generate Specific Secrets
+$ psst secrets generate --name db_user_pwd --name access_pwd
+{
+    "db_user_pwd": "WTM7Dx3ha9wpQbu1A60q7rhTP",
+    "access_pwd": "GuA2TyH0Hh62ZXvh9QeSC2dux"
+}
+
+# Generate for Variable Usage
+$ secret_name=db_user_pwd
+$ secret_vaule=$(psst secrets generate --name $secret_name | jq -r .$secret_name)
+$ echo $secret_vaule
+bRwoom0IoB0Fpuf2bsNZgOVfF
 ```
 
 ### Cloud Manager Mode
