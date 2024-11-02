@@ -48,38 +48,6 @@ def generate(secrets_list, name):
         for module in getmembers(list_module, ismodule):
             secrets.append(module[0])
 
-    # if name:
-    #     # If named secrets, use that list
-    #     for n in name:
-    #         secrets.append(n) if n in dir(psst.secrets) else print(n + " is not a vaild secret name, ignoring.")
-    # else:
-    #     if oci_image:
-    #         # TODO is this all we need or do we need defaults PLUS these?
-    #         secrets.append("connect_pwd")
-    #         secrets.append("access_pwd")
-    #         secrets.append("admin_pwd")
-    #         secrets.append("weblogic_admin_pwd")
-    #         secrets.append("webprofile_user_pwd")
-    #         secrets.append("gw_user_pwd")
-    #         secrets.append("domain_conn_pwd")
-    #         secrets.append("opr_pwd")
-    #         secrets.append("db_admin_pwd")
-    #     else:   
-    #         # Else use all secrets
-    #         secrets.append("db_user_pwd")
-    #         secrets.append("access_pwd")
-    #         secrets.append("es_admin_pwd")
-    #         secrets.append("es_proxy_pwd")
-    #         secrets.append("wls_admin_user_pwd")
-    #         secrets.append("db_connect_pwd")
-    #         secrets.append("pia_gateway_admin_pwd")
-    #         secrets.append("pia_webprofile_user_pwd")
-    #         secrets.append("domain_conn_pwd")
-    #         secrets.append("pskey_password")
-    #         if cloud_manager:
-    #             secrets.append("db_admin_pwd")
-    #             secrets.append("windows_password")
-
     for s in secrets:
         dict[s] = eval("psst.secrets." + secrets_list + "." + s + ".generate(True)")
     click.echo(json.dumps(dict, indent=4))
@@ -109,6 +77,7 @@ def generate(type, name, compartment_id, region, cloud_manager):
         # TODO this all needs error checking
         ocicfg = psst.vault.oci.config(region)
         # TODO - generate dict
+        # TODO - rework this to work like `generate` with secrets-list
         dict = {}
         dict["db_user_pwd"] = psst.secrets.db_user_pwd.generate(cloud_manager)
         dict["access_pwd"] = psst.secrets.access_pwd.generate(cloud_manager)
