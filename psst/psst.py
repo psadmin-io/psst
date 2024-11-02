@@ -82,14 +82,19 @@ def vault():
     pass
 
 @vault.command("generate")
-@click.option('--type', default="oci", show_default=True)
-@click.option('--name', required=True)
-@click.option('--compartment-id', required=True)
-@click.option('--region')
-@click.option('-cm', '--cloud-manager', 
-              default=False, 
-              help="Set Cloud Manager Mode for passwords and length requirements", 
-              is_flag=True)
+@click.option('--type', default="oci",
+              show_default=True,
+              help="The type of vault to create")
+@click.option('--name', required=True,
+              help="")
+@click.option('--compartment-id', required=True,
+              help="Set the compartment for the vault, key and secrets")
+@click.option('--region',
+              help="Set the region, overriding the default cloud configuration value")
+@click.option('-cm', '--cloud-manager',
+              default=False,
+              is_flag=True,
+              help="Set Cloud Manager Mode for passwords and length requirements")
 def generate(type, name, compartment_id, region, cloud_manager):
     """Generate a vault. Currently defaults a lot, including generated secrets..."""
     if type == "oci":
@@ -112,4 +117,4 @@ def generate(type, name, compartment_id, region, cloud_manager):
         if cloud_manager:
             dict["windows_password"] = psst.secrets.windows_password.generate(cloud_manager)
               
-        vault = psst.vault.oci.create(ocicfg, name, compartment_id, region, dict)
+        vault = psst.vault.oci.create(ocicfg, name, compartment_id, dict)
