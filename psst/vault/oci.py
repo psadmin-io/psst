@@ -2,9 +2,10 @@ import oci
 import time
 import base64
 
-def config():
+def config(region):
     config = oci.config.from_file()
-    #config["region"] = "" # TODO - set region?
+    if region:
+        config["region"] = region
 
     return config
 
