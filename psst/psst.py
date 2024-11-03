@@ -35,9 +35,7 @@ def generate(secrets_list, name):
     """Generate a dictionary of secrets"""
 
     dict = {}
-    secrets = []        
-    # TODO
-    secrets_list = "base"
+    secrets = []
 
     if name:
         # If named secrets, use that list
@@ -49,7 +47,7 @@ def generate(secrets_list, name):
             secrets.append(module[0])
 
     for s in secrets:
-        dict[s] = eval("psst.secrets." + secrets_list + "." + s + ".generate(True)")
+        dict[s] = eval("psst.secrets." + secrets_list + "." + s + ".generate()")
     click.echo(json.dumps(dict, indent=4))
 
 @cli.group()

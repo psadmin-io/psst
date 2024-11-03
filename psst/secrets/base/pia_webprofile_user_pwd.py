@@ -21,6 +21,7 @@ UPCASE_CHARACTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
 
 COMBINED_LIST = DIGITS + UPCASE_CHARACTERS + LOCASE_CHARACTERS
 
+def generate():
 	# randomly select at least one character from each character set above
 	rand_digit = random.choice(DIGITS)
 	rand_upper = random.choice(UPCASE_CHARACTERS)
