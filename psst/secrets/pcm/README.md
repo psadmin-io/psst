@@ -4,6 +4,11 @@ If you are creating a PeopleSoft Cloud Manager (PCM) stack, you will need to gen
 
 > 🟥 [Oracle's instructions](https://docs.oracle.com/en/applications/peoplesoft/cloud-manager/index.html)
 
+# TODO
+
+- [ ] New list for passwords needed for PCM to create environments?
+    - Or do we just combine all in this list, even if some aren't used to create PCM?
+
 # Secrets List
 
 - db_connect_pwd
