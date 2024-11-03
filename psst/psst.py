@@ -31,10 +31,10 @@ def secrets():
 @click.option('-n', '--name',
               help="Generate specific named secrets",
               multiple=True)
-@click.option('--prefix',
+@click.option('-p','--prefix',
               default="",
               help="Add a prefix to the secret names")
-@click.option('--suffix',
+@click.option('-s','--suffix',
               default="",
               help="Add a suffix to the secret names")
 def generate(secrets_list, name, prefix, suffix):
@@ -62,40 +62,39 @@ def vault():
     pass
 
 @vault.command("generate")
-@click.option('--type', default="oci",
+@click.option('-t','--type', default="oci",
               show_default=True,
               help="The type of vault to create")
-@click.option('--name', required=True,
+@click.option('-n','--name', required=True,
               help="")
-@click.option('--compartment-id', required=True,
+@click.option('-c','--compartment-id', required=True,
               help="Set the compartment for the vault, key and secrets")
-@click.option('--region',
+@click.option('-r','--region',
               help="Set the region, overriding the default cloud configuration value")
-@click.option('-cm', '--cloud-manager',
-              default=False,
-              is_flag=True,
-              help="Set Cloud Manager Mode for passwords and length requirements")
-def generate(type, name, compartment_id, region, cloud_manager):
-    """Generate a vault. Currently defaults a lot, including generated secrets..."""
+@click.option('-l', '--secrets-list', 
+              default="base",
+              show_default=True,
+              help="The secrets list to generate [base,pcm,oci]")
+@click.option('-p','--prefix',
+              default="",
+              help="Add a prefix to the secret names")
+@click.option('-s','--suffix',
+              default="",
+              help="Add a suffix to the secret names")
+def generate(type, name, compartment_id, region, secrets_list, prefix, suffix):
+    """Generate a vault with generated secrets."""
     if type == "oci":
-        # TODO this all needs error checking
         ocicfg = psst.vault.oci.config(region)
-        # TODO - generate dict
-        # TODO - rework this to work like `generate` with secrets-list
+
         dict = {}
-        dict["db_user_pwd"] = psst.secrets.db_user_pwd.generate(cloud_manager)
-        dict["access_pwd"] = psst.secrets.access_pwd.generate(cloud_manager)
-        dict["es_admin_pwd"] = psst.secrets.es_admin_pwd.generate(cloud_manager)
-        dict["es_proxy_pwd"] = psst.secrets.es_proxy_pwd.generate(cloud_manager)
-        dict["wls_admin_user_pwd"] = psst.secrets.wls_admin_user_pwd.generate(cloud_manager)
-        if cloud_manager:
-            dict["db_admin_pwd"] = psst.secrets.db_admin_pwd.generate(cloud_manager)
-        dict["db_connect_pwd"] = psst.secrets.db_connect_pwd.generate(cloud_manager)
-        dict["pia_gateway_admin_pwd"] = psst.secrets.pia_gateway_admin_pwd.generate(cloud_manager)
-        dict["pia_webprofile_user_pwd"] = psst.secrets.pia_webprofile_user_pwd.generate(cloud_manager)
-        dict["domain_conn_pwd"] = psst.secrets.domain_conn_pwd.generate(cloud_manager)
-        dict["pskey_password"] = psst.secrets.pskey_password.generate(cloud_manager)
-        if cloud_manager:
-            dict["windows_password"] = psst.secrets.windows_password.generate(cloud_manager)
-              
+        secrets = []
+
+        list_module = eval("psst.secrets." + secrets_list )
+        for module in getmembers(list_module, ismodule):
+            secrets.append(module[0])
+
+        for s in secrets:
+
+            dict[prefix + s + suffix] = eval("psst.secrets." + secrets_list + "." + s + ".generate()")
+
         vault = psst.vault.oci.create(ocicfg, name, compartment_id, dict)
