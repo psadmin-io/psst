@@ -62,7 +62,7 @@ def vault():
     """Working with secrets in Vaults"""
     pass
 
-@vault.command("generate")
+@vault.command("create")
 @click.option('-t','--type', default="oci",
               show_default=True,
               help="The type of vault to create")
@@ -82,8 +82,8 @@ def vault():
 @click.option('-s','--suffix',
               default="",
               help="Add a suffix to the secret names")
-def generate(type, name, compartment_id, region, secrets_list, prefix, suffix):
-    """Generate a vault with generated secrets."""
+def create(type, name, compartment_id, region, secrets_list, prefix, suffix):
+    """Create a vault with generated secrets."""
     if type == "oci":
         ocicfg = psst.vault.oci.config(region)
 
@@ -123,7 +123,7 @@ def generate(type, name, compartment_id, region, secrets_list, prefix, suffix):
               default="",
               help="Add a suffix to the secret names")
 def update(type, vault, key, compartment_id, region, secrets_list, prefix, suffix):
-    """Update a vault. Currently defaults a lot, including generated secrets..."""
+    """Update a vault with generated secrets."""
 
     if type == "oci":
         ocicfg = psst.vault.oci.config(region)  # set region local here vs passing to function?        

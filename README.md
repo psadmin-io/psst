@@ -70,13 +70,59 @@ $ psst secrets generate --secrets-list oci
 }
 ```
 
-## vault
+### Prefix/Suffix
+Secret names can have a prefix or suffix added to them.
+
+```bash
+$ psst secrets generate --prefix "PRE_" --suffix "_SUF"
+{
+    "PRE_access_pwd_SUF": "H1FF57w2AzqJduBo55t2zaBpJ",
+    "PRE_db_admin_pwd_SUF": "KdOi#7DvT472OqOY7IQzoZ37IUjCF7",
+    "PRE_db_connect_pwd_SUF": "paQizHZc3ePigm7kGD7bn6CRn8CE6W",
+    "PRE_db_user_pwd_SUF": "kV2Bc0I5mobXupuAPe58ZsIOv",
+    "PRE_domain_conn_pwd_SUF": "9KweV17DN7wc2DBABzo",
+    "PRE_es_admin_pwd_SUF": "oYgISZqeHejo29Fj1RQNyYpVwm5bHk",
+    "PRE_es_proxy_pwd_SUF": "QQaO2DVfSeIhWCcNMOkQO5fDS5HDWx",
+    "PRE_pia_gateway_admin_pwd_SUF": "tZwjqMyVEBIYYrnvCzUE132WhRFjkH",
+    "PRE_pia_webprofile_user_pwd_SUF": "54uSV7XoguPesv86gz8Xp4q7R3bsbm",
+    "PRE_pskey_password_SUF": "nnwUHwj0DOJQaTC8Efy1wM0vxBeNig",
+    "PRE_windows_password_SUF": "S.o8oP,@+%DC5G]FwhRE}6|2kjecSX",
+    "PRE_wls_admin_user_pwd_SUF": "CruYP28X1V%pVXBD#b"
+}
 ```
-$ c_id=ocid1.compartment.oc1....
-$ psst vault generate --name myvault --compartment-id $c_id 
-...
-...
-Vault created.
+
+## vault
+
+### Create
+Creates a new vault and populates with new generated secrets.
+
+```
+vault_name=test-vault
+region=us-ashburn-1
+comp_id=ocid1.compartment.oc1....
+
+psst vault create \
+    --name $vault_name  \
+    --type oci \
+    --region $region \
+    --compartment-id $comp_id
+```
+
+### Update
+Updaets an existing vault with new generated secrets.
+
+```
+vault_id=test-vault
+key_id=ocid1.key...
+region=us-ashburn-1
+comp_id=ocid1.compartment.oc1...
+
+psst vault update \
+    --vault $vault_id \ 
+    --key $key_id \
+    --type oci \
+    --region $region \
+    --compartment-id $comp_id
 ```
 
 # Installing
