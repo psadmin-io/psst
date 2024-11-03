@@ -31,7 +31,13 @@ def secrets():
 @click.option('-n', '--name',
               help="Generate specific named secrets",
               multiple=True)
-def generate(secrets_list, name):
+@click.option('-p','--prefix',
+              default="",
+              help="Add a prefix to the secret names")
+@click.option('-s','--suffix',
+              default="",
+              help="Add a suffix to the secret names")
+def generate(secrets_list, name, prefix, suffix):
     """Generate a dictionary of secrets"""
 
     dict = {}
@@ -47,7 +53,7 @@ def generate(secrets_list, name):
             secrets.append(module[0])
 
     for s in secrets:
-        dict[s] = eval("psst.secrets." + secrets_list + "." + s + ".generate()")
+        dict[prefix + s + suffix] = eval("psst.secrets." + secrets_list + "." + s + ".generate()")
 
     click.echo(json.dumps(dict, indent=4))
 
@@ -57,20 +63,26 @@ def vault():
     pass
 
 @vault.command("generate")
-@click.option('--type', default="oci",
+@click.option('-t','--type', default="oci",
               show_default=True,
               help="The type of vault to create")
-@click.option('--name', required=True,
+@click.option('-n','--name', required=True,
               help="")
-@click.option('--compartment-id', required=True,
+@click.option('-c','--compartment-id', required=True,
               help="Set the compartment for the vault, key and secrets")
-@click.option('--region',
+@click.option('-r','--region',
               help="Set the region, overriding the default cloud configuration value")
 @click.option('-l', '--secrets-list', 
               default="base",
               show_default=True,
               help="The secrets list to generate [base,pcm,oci]")
-def generate(type, name, compartment_id, region, secrets_list):
+@click.option('-p','--prefix',
+              default="",
+              help="Add a prefix to the secret names")
+@click.option('-s','--suffix',
+              default="",
+              help="Add a suffix to the secret names")
+def generate(type, name, compartment_id, region, secrets_list, prefix, suffix):
     """Generate a vault with generated secrets."""
     if type == "oci":
         ocicfg = psst.vault.oci.config(region)
@@ -83,6 +95,6 @@ def generate(type, name, compartment_id, region, secrets_list):
             secrets.append(module[0])
 
         for s in secrets:
-            dict[s] = eval("psst.secrets." + secrets_list + "." + s + ".generate()")
+            dict[prefix + s + suffix] = eval("psst.secrets." + secrets_list + "." + s + ".generate()")
 
         vault = psst.vault.oci.create(ocicfg, name, compartment_id, dict)
