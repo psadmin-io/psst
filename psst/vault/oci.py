@@ -9,6 +9,14 @@ def config(region):
 
     return config
 
+def update(ocicfg, vault, key, compartment_id, secrets_dict):    
+    print("[Updating Vault]")
+    # TODO oci call to get vault and key name from id?
+    
+    print("[Creating Secrets]")
+    for name, content in secrets_dict.items():
+        create_secret(ocicfg, vault, key, compartment_id, name, content, name)
+
 def create(ocicfg, name, compartment_id, secrets_dict):
     vault = create_vault(ocicfg, name, compartment_id)
     key = create_key(ocicfg, "masterkey", vault.management_endpoint, compartment_id)
