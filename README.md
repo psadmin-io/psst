@@ -51,9 +51,9 @@ When using `secrets generate` you can specify a secret list using `--secrets-lis
 
 Review each list's README for more details.
 
-- [base](./secrets/base)
-- [oci](./secrets/oci)
-- [pcm](./secrets/pcm)
+- [base](./psst/secrets/base)
+- [oci](./psst/secrets/oci)
+- [pcm](./psst/secrets/pcm)
 
 Usage:
 
