@@ -1,8 +1,9 @@
 import random
 import array
 
-# PIA keystore password.
-# TODO - CM doesn't give rules or ask for this?
+# PeopleSoft Web Profile user (PTWEBSERVER) password. 
+# Between 8 and 30 characters in length.
+# Only alphanumeric characters.
 
 MIN_LEN = 8
 MAX_LEN = 30
@@ -20,7 +21,8 @@ UPCASE_CHARACTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
 
 COMBINED_LIST = DIGITS + UPCASE_CHARACTERS + LOCASE_CHARACTERS
 
-def generate(cloud_manager):
+
+def generate():
 	# randomly select at least one character from each character set above
 	rand_digit = random.choice(DIGITS)
 	rand_upper = random.choice(UPCASE_CHARACTERS)
