@@ -16,7 +16,7 @@ Commands:
 
 # Usage
 ## secrets
-```
+```bash
 # Generate All Secrets
 $ psst secrets generate
 {
@@ -46,43 +46,27 @@ $ echo $secret_vaule
 bRwoom0IoB0Fpuf2bsNZgOVfF
 ```
 
-### Cloud Manager Mode
+### Secrets List
+When using `secrets generate` you can specify a secret list using `--secrets-list`, otherwise `base` is the default. Each type of list contains a set of secrets to generate for different use cases. The lists contain both the secret names, as well as the validation rules.
 
-Adding the `-cm` flag (`--cloud-manager`) will generate passwords that comply with the Cloud Manager password requirements. It will also generate a Windows user password.
+Review each list's README for more details.
 
-```
-psst secrets generate -cm
+- [base](./secrets/base)
+- [oci](./secrets/oci)
+- [pcm](./secrets/pcm)
+
+Usage:
+
+```bash
+$ psst secrets generate --secrets-list oci
 {
-    "db_user_pwd": "do7iBVFD",
-    "access_pwd": "q6NtpH0w",
-    "es_admin_pwd": "KAQfp7zj5GNZ8M1PyBx7dpzcFq7EwG",
-    "es_proxy_pwd": "biS6eCOZNxkTDim7m5wpkEMu3JG3rd",
-    "wls_admin_user_pwd": "!Kk!$2Qt$p7X$UIrAO52yq1^r93&Mr",
-    "db_admin_pwd": "PVr7EJu5IxcdkU4k3U8a8_0eeVs1GN",
-    "db_connect_pwd": "9SgPuuygwSh2i0t8BStvh4o7HN2kqR",
-    "pia_gateway_admin_pwd": "FsIUb9ZmuQb9tOKXz0tZGov7F6bMyE",
-    "pia_webprofile_user_pwd": "c6cMrNipgKBwEMrp6teVYeb026H3Rp",
-    "domain_conn_pwd": "1tqEWEHfVnR4X5G01Nb",
-    "pskey_password": "3ObFEV6YVhDesde1A7EJupazHwdqy4",
-    "windows_password": "1I6vfbC0x--@M!UM>$&*XyM42!eo@Y"
-}
-```
-
-### OCI Image Mode
-
-If you are building an OCI Marketplace PeopleSoft Image, you need to provide a JSON-formatted string to set the passwords. Use `-oci` (or `--oci-image`) and `psst` will output a JSON formatted string you can paste directly into User Data.
-
-```
-psst secrets generate -oci
-{
-    "connect_pwd": "nwO6FBKZAuuwDvKPjuN5m1HwCd3frb",
-    "access_pwd": "VWQMf7bix6wIO4JwIeVpNHmS0",
-    "admin_pwd": "#pcC_Gx4DebI2G6sd02oB9#QsShrV1",
-    "weblogic_admin_pwd": "MZf74I9sc78ZTeswrFfO5nWhtxng##",
-    "webprofile_user_pwd": "orRI5YwRkKT2vvE8FfFwh8K6UJQsPG",
-    "gw_user_pwd": "nn40ZII2iXR8eES2RUw9rpuar9EMuW",
-    "domain_conn_pwd": "MkhvZpmGJQr9gai1JtR",
-    "opr_pwd": "DUKDgasnZda8nVQ88ZG16djup"
+    "access_pwd": "sN1mV7QhBDkfcncrYBR3cGknC",
+    "db_admin_pwd": "e0tSbOXKRZ3Q-Zhfv0y#BOncOImmRf",
+    "db_user_pwd": "IkrcBdW1YfTfMrbbxZCrWeet4",
+    "domain_conn_pwd": "tzcx9XRy9Nu0z6uyozO",
+    "pia_gateway_admin_pwd": "xVztVe63wGhHDkIEs8zsOYzpyjQFf6",
+    "pia_webprofile_user_pwd": "vbwOrkaw0vbosx9M7sHMHy9qVHZndX",
+    "wls_admin_user_pwd": "Eh#&!o6K924iWKmPKynMrZjwKXUfTV"
 }
 ```
 
@@ -94,7 +78,6 @@ $ psst vault generate --name myvault --compartment-id $c_id
 ...
 Vault created.
 ```
-
 
 # Installing
 ```

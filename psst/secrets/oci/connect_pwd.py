@@ -1,9 +1,13 @@
 import random
 import array
 
-# PeopleSoft Connect ID (people) password. 
-# Between 6 and 30 characters in length. 
-# It must only contain letters and numbers.
+# PeopleSoft Connect ID (people) password.
+# Between 6 and 30 characters in length.
+# It must not contain any space, percent sign (%), 
+#   slash (/), single quotation mark ( '), 
+#   or double quotation mark (") characters.
+# TODO - add in allowed special characters?
+
 MIN_LEN = 6
 MAX_LEN = 30
 

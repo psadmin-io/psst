@@ -1,12 +1,12 @@
 import random
 import array
 
-# Domain boot user (CLADM/PS/VP1) password. 
-# Only alphanumeric characters .
-# 25 characters default
+# PeopleSoft user ID password.
+# Only alphanumeric characters.
+# 8 characters default
 
 MIN_LEN = 8
-MAX_LEN = 25
+MAX_LEN = 8
 
 DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 LOCASE_CHARACTERS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
