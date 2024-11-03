@@ -54,6 +54,7 @@ def generate(secrets_list, name, prefix, suffix):
 
     for s in secrets:
         dict[prefix + s + suffix] = eval("psst.secrets." + secrets_list + "." + s + ".generate()")
+
     click.echo(json.dumps(dict, indent=4))
 
 @cli.group()
@@ -94,7 +95,6 @@ def generate(type, name, compartment_id, region, secrets_list, prefix, suffix):
             secrets.append(module[0])
 
         for s in secrets:
-
             dict[prefix + s + suffix] = eval("psst.secrets." + secrets_list + "." + s + ".generate()")
 
         vault = psst.vault.oci.create(ocicfg, name, compartment_id, dict)
