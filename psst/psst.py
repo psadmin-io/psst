@@ -31,7 +31,13 @@ def secrets():
 @click.option('-n', '--name',
               help="Generate specific named secrets",
               multiple=True)
-def generate(secrets_list, name):
+@click.option('--prefix',
+              default="",
+              help="Add a prefix to the secret names")
+@click.option('--suffix',
+              default="",
+              help="Add a suffix to the secret names")
+def generate(secrets_list, name, prefix, suffix):
     """Generate a dictionary of secrets"""
 
     dict = {}
@@ -47,7 +53,7 @@ def generate(secrets_list, name):
             secrets.append(module[0])
 
     for s in secrets:
-        dict[s] = eval("psst.secrets." + secrets_list + "." + s + ".generate()")
+        dict[prefix + s + suffix] = eval("psst.secrets." + secrets_list + "." + s + ".generate()")
     click.echo(json.dumps(dict, indent=4))
 
 @cli.group()
