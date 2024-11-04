@@ -1,6 +1,5 @@
 import json
 import click
-from inspect import getmembers, ismodule
 
 import psst.secrets
 import psst.vault
@@ -39,23 +38,8 @@ def secrets():
               help="Add a suffix to the secret names")
 def generate(secrets_list, name, prefix, suffix):
     """Generate a dictionary of secrets"""
-
-    dict = {}
-    secrets = []
-
-    if name:
-        # If named secrets, use that list
-        for n in name:
-            secrets.append(n) if n in dir(psst.secrets) else print(n + " is not a vaild secret name, ignoring.")
-    else:
-        list_module = eval("psst.secrets." + secrets_list )
-        for module in getmembers(list_module, ismodule):
-            secrets.append(module[0])
-
-    for s in secrets:
-        dict[prefix + s + suffix] = eval("psst.secrets." + secrets_list + "." + s + ".generate()")
-
-    click.echo(json.dumps(dict, indent=4))
+    secrets_dict = psst.secrets.util.generate_secrets(name, secrets_list, prefix, suffix)
+    click.echo(json.dumps(secrets_dict, indent=4))
 
 @cli.group()
 def vault():
@@ -86,18 +70,8 @@ def create(type, name, compartment_id, region, secrets_list, prefix, suffix):
     """Create a vault with generated secrets."""
     if type == "oci":
         ocicfg = psst.vault.oci.config(region)
-
-        dict = {}
-        secrets = []
-
-        list_module = eval("psst.secrets." + secrets_list )
-        for module in getmembers(list_module, ismodule):
-            secrets.append(module[0])
-
-        for s in secrets:
-            dict[prefix + s + suffix] = eval("psst.secrets." + secrets_list + "." + s + ".generate()")
-
-        vault = psst.vault.oci.create(ocicfg, name, compartment_id, dict)
+        secrets_dict = psst.secrets.util.generate_secrets(False, secrets_list, prefix, suffix)
+        vault = psst.vault.oci.create(ocicfg, name, compartment_id, secrets_dict)
 
 @vault.command("update")
 @click.option('-t','--type',
@@ -127,15 +101,5 @@ def update(type, vault, key, compartment_id, region, secrets_list, prefix, suffi
 
     if type == "oci":
         ocicfg = psst.vault.oci.config(region)  # set region local here vs passing to function?        
-        
-        dict = {}
-        secrets = []
-
-        list_module = eval("psst.secrets." + secrets_list )
-        for module in getmembers(list_module, ismodule):
-            secrets.append(module[0])
-
-        for s in secrets:
-            dict[prefix + s + suffix] = eval("psst.secrets." + secrets_list + "." + s + ".generate()")
-
-        vault = psst.vault.oci.update(ocicfg, vault, key, compartment_id, dict)
+        secrets_dict = psst.secrets.util.generate_secrets(False, secrets_list, prefix, suffix)
+        vault = psst.vault.oci.update(ocicfg, vault, key, compartment_id, secrets_dict)
