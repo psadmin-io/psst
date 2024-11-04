@@ -1,6 +1,7 @@
 import oci
 import time
 import base64
+import re
 
 def config(region):
     config = oci.config.from_file()
@@ -96,6 +97,7 @@ def create_key(ocicfg, name, vault_mgmt, compartment_id):
     return key.data
 
 def create_secret(ocicfg, vault_id, key_id, compartment_id, secret_name, secret_content, secret_descr):
+    validate_secret_name(secret_name)
     vault_client = oci.vault.VaultsClient(ocicfg)
     # response = vaults_client_composite.create_secret_and_wait_for_state(create_secret_details=secrets_details,
     #                                         wait_for_states=[oci.vault.models.Secret.LIFECYCLE_STATE_ACTIVE])
@@ -137,3 +139,10 @@ def create_secret(ocicfg, vault_id, key_id, compartment_id, secret_name, secret_
         raise SystemExit("ERROR: There was an issue creating secret " + secret_name + ". [{}]".format(secret.data.lifecycle_state))
 
     return create_secret_response.data
+
+def validate_secret_name(secret_name):
+    # alphanumeric, _, -, < 255 length
+    regex = r'^[\w-]+$'
+    
+    if not ((re.search(regex, secret_name, re.IGNORECASE)) and len(secret_name) <= 255):    
+        raise ValueError(f"Secret name '{secret_name}' is not valid. An OCI Secret must contain only alphanumeric characters, underscores or hyphens, and should not exceed 255 characters.")
