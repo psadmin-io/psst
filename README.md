@@ -16,7 +16,9 @@ Commands:
 ```
 
 # Usage
+
 ## secrets
+
 ```bash
 # Generate All Secrets
 $ psst secrets generate
@@ -96,7 +98,28 @@ $ psst secrets generate --prefix "PRE_" --suffix "_SUF"
 
 ## vault
 
-### Create
+Create or update vaults with generated passwords. Specify `--type` to use different kind of vaults.
+
+Supported types:
+
+- `oci`
+
+```
+$ psst vault --help
+Usage: psst vault [OPTIONS] COMMAND [ARGS]...
+
+  Working with secrets in Vaults
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  create  Create a vault with generated secrets.
+  update  Update a vault with generated secrets.
+```
+
+### create
+
 Creates a new vault and populates with new generated secrets.
 
 ```
@@ -105,14 +128,15 @@ region=us-ashburn-1
 comp_id=ocid1.compartment.oc1....
 
 psst vault create \
-    --name $vault_name  \
+    --vault-name $vault_name  \
     --type oci \
     --region $region \
     --compartment-id $comp_id
 ```
 
-### Update
-Updaets an existing vault with new generated secrets.
+### update
+
+Updates an existing vault with new generated secrets.
 
 ```
 vault_id=test-vault
