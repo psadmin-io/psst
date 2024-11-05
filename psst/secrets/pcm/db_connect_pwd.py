@@ -1,12 +1,11 @@
 import random
 import array
 
-# Domain boot user (CLADM/PS/VP1) password. 
-# Only alphanumeric characters .
-# 8 characters in length for Cloud Manager
-# 25 characters default
-
-MIN_LEN = 8
+# PeopleSoft Connect ID (people) password. 
+# Between 6 and 30 characters in length. 
+# It must only contain letters and numbers.
+MIN_LEN = 6
+MAX_LEN = 30
 
 DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 LOCASE_CHARACTERS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
@@ -21,19 +20,13 @@ UPCASE_CHARACTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
 
 COMBINED_LIST = DIGITS + UPCASE_CHARACTERS + LOCASE_CHARACTERS
 
-def generate(cloud_manager):
-	if cloud_manager:
-		MAX_LEN = 8
-	else:
-		MAX_LEN = 25
-
+def generate():
 	# randomly select at least one character from each character set above
 	rand_digit = random.choice(DIGITS)
 	rand_upper = random.choice(UPCASE_CHARACTERS)
 	rand_lower = random.choice(LOCASE_CHARACTERS)
 
 	temp_pass = rand_digit + rand_upper + rand_lower
-
 
 	# fill the rest by selecting randomly from the combined list
 	for x in range(MAX_LEN - 3):

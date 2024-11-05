@@ -23,92 +23,89 @@ def secrets():
     pass
 
 @secrets.command("generate")
-@click.option('-cm', '--cloud-manager', 
-              default=False, 
-              help="Set Cloud Manager Mode for passwords and length requirements", 
-              is_flag=True)
-@click.option('-oci', '--oci-image', 
-              default=False, 
-              help="Create JSON for OCI-based PeopleSoft Images", 
-              is_flag=True)
-@click.option('-n', '--name',
-              help="Generate specific named secrets",
+@click.option('-l', '--secrets-list', 
+              default="base",
+              show_default=True,
+              help="The secrets list to generate [base,pcm,oci]")
+@click.option('-sn', '--secret-name',
+              help="Name of a specific secret to generate",
               multiple=True)
-def generate(cloud_manager, oci_image, name):
+@click.option('-p','--prefix',
+              default="",
+              help="Add a prefix to the secret names")
+@click.option('-s','--suffix',
+              default="",
+              help="Add a suffix to the secret names")
+def generate(secrets_list, secret_name, prefix, suffix):
     """Generate a dictionary of secrets"""
-
-    dict = {}
-    secrets = []    
-    
-    if name:
-        # If named secrets, use that list
-        for n in name:
-            secrets.append(n) if n in dir(psst.secrets) else print(n + " is not a vaild secret name, ignoring.")
-    else:
-        if oci_image:
-            # TODO is this all we need or do we need defaults PLUS these?
-            secrets.append("connect_pwd")
-            secrets.append("access_pwd")
-            secrets.append("admin_pwd")
-            secrets.append("weblogic_admin_pwd")
-            secrets.append("webprofile_user_pwd")
-            secrets.append("gw_user_pwd")
-            secrets.append("domain_conn_pwd")
-            secrets.append("opr_pwd")
-            secrets.append("db_admin_pwd")
-        else:   
-            # Else use all secrets
-            secrets.append("db_user_pwd")
-            secrets.append("access_pwd")
-            secrets.append("es_admin_pwd")
-            secrets.append("es_proxy_pwd")
-            secrets.append("wls_admin_user_pwd")
-            secrets.append("db_connect_pwd")
-            secrets.append("pia_gateway_admin_pwd")
-            secrets.append("pia_webprofile_user_pwd")
-            secrets.append("domain_conn_pwd")
-            secrets.append("pskey_password")
-            if cloud_manager:
-                secrets.append("db_admin_pwd")
-                secrets.append("windows_password")
-
-    for s in secrets:
-        dict[s] = eval("psst.secrets." + s + ".generate(cloud_manager)")
-    click.echo(json.dumps(dict, indent=4))
+    secrets_dict = psst.secrets.util.generate_secrets(secrets_list, secret_name, prefix, suffix)
+    click.echo(json.dumps(secrets_dict, indent=4))
 
 @cli.group()
 def vault():
     """Working with secrets in Vaults"""
     pass
 
-@vault.command("generate")
-@click.option('--type', default="oci", show_default=True)
-@click.option('--name', required=True)
-@click.option('--compartment-id', required=True)
-@click.option('-cm', '--cloud-manager', 
-              default=False, 
-              help="Set Cloud Manager Mode for passwords and length requirements", 
-              is_flag=True)
-def generate(type, name, compartment_id, cloud_manager):
-    """Generate a vault. Currently defaults a lot, including generated secrets..."""
+@vault.command("create")
+@click.option('-t','--type', default="oci",
+              show_default=True,
+              help="The type of vault to create")
+@click.option('-vn','--vault-name', required=True,
+              help="The name of the vault")
+@click.option('-c','--compartment-id', required=True,
+              help="Set the compartment for the vault, key and secrets")
+@click.option('-r','--region',
+              help="Set the region, overriding the default cloud configuration value")
+@click.option('-l', '--secrets-list', 
+              default="base",
+              show_default=True,
+              help="The secrets list to generate [base,pcm,oci]")
+@click.option('-sn', '--secret-name',
+              help="Name of a specific secret to generate",
+              multiple=True)
+@click.option('-p','--prefix',
+              default="",
+              help="Add a prefix to the secret names")
+@click.option('-s','--suffix',
+              default="",
+              help="Add a suffix to the secret names")
+def create(type, vault_name, compartment_id, region, secrets_list, secret_name, prefix, suffix):
+    """Create a vault with generated secrets."""
     if type == "oci":
-        # TODO this all needs error checking
-        ocicfg = psst.vault.oci.config()
-        # TODO - generate dict
-        dict = {}
-        dict["db_user_pwd"] = psst.secrets.db_user_pwd.generate(cloud_manager)
-        dict["access_pwd"] = psst.secrets.access_pwd.generate(cloud_manager)
-        dict["es_admin_pwd"] = psst.secrets.es_admin_pwd.generate(cloud_manager)
-        dict["es_proxy_pwd"] = psst.secrets.es_proxy_pwd.generate(cloud_manager)
-        dict["wls_admin_user_pwd"] = psst.secrets.wls_admin_user_pwd.generate(cloud_manager)
-        if cloud_manager:
-            dict["db_admin_pwd"] = psst.secrets.db_admin_pwd.generate(cloud_manager)
-        dict["db_connect_pwd"] = psst.secrets.db_connect_pwd.generate(cloud_manager)
-        dict["pia_gateway_admin_pwd"] = psst.secrets.pia_gateway_admin_pwd.generate(cloud_manager)
-        dict["pia_webprofile_user_pwd"] = psst.secrets.pia_webprofile_user_pwd.generate(cloud_manager)
-        dict["domain_conn_pwd"] = psst.secrets.domain_conn_pwd.generate(cloud_manager)
-        dict["pskey_password"] = psst.secrets.pskey_password.generate(cloud_manager)
-        if cloud_manager:
-            dict["windows_password"] = psst.secrets.windows_password.generate(cloud_manager)
-              
-        vault = psst.vault.oci.create(ocicfg, name, compartment_id, dict)
+        ocicfg = psst.vault.oci.config(region)
+        secrets_dict = psst.secrets.util.generate_secrets(secrets_list, secret_name, prefix, suffix)
+        vault = psst.vault.oci.create(ocicfg, vault_name, compartment_id, secrets_dict)
+
+@vault.command("update")
+@click.option('-t','--type',
+              default="oci",
+              show_default=True,
+              help="The type of vault to create")
+@click.option('-v','--vault', required=True,
+              help="Vault ID (OCID for OCI, etc)")
+@click.option('-k','--key', required=True,
+              help="Key ID (OCID for OCI, etc)")
+@click.option('-c','--compartment-id', required=True,
+              help="Set the compartment for the vault, key and secrets")
+@click.option('-r','--region',
+              help="Set the region, overriding the default cloud configuration value")
+@click.option('-l', '--secrets-list', 
+              default="base",
+              show_default=True,
+              help="The secrets list to generate [base,pcm,oci]")
+@click.option('-sn', '--secret-name',
+              help="Name of a specific secret to generate",
+              multiple=True)
+@click.option('-p','--prefix',
+              default="",
+              help="Add a prefix to the secret names")
+@click.option('-s','--suffix',
+              default="",
+              help="Add a suffix to the secret names")
+def update(type, vault, key, compartment_id, region, secrets_list, secret_name, prefix, suffix):
+    """Update a vault with generated secrets."""
+
+    if type == "oci":
+        ocicfg = psst.vault.oci.config(region)  # set region local here vs passing to function?        
+        secrets_dict = psst.secrets.util.generate_secrets(secrets_list, secret_name, prefix, suffix)
+        vault = psst.vault.oci.update(ocicfg, vault, key, compartment_id, secrets_dict)

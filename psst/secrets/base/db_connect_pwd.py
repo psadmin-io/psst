@@ -1,12 +1,11 @@
 import random
 import array
 
-# PeopleSoft domain connect password. 
-# Bettwen 8 and 20 characters in length.
-# Ensure the password contains only alphanumeric characters.
-
-MIN_LEN = 8
-MAX_LEN = 20
+# PeopleSoft Connect ID (people) password. 
+# Between 6 and 30 characters in length. 
+# It must only contain letters and numbers.
+MIN_LEN = 6
+MAX_LEN = 30
 
 DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 LOCASE_CHARACTERS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
@@ -21,7 +20,7 @@ UPCASE_CHARACTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
 
 COMBINED_LIST = DIGITS + UPCASE_CHARACTERS + LOCASE_CHARACTERS
 
-def generate(cloud_manager):
+def generate():
 	# randomly select at least one character from each character set above
 	rand_digit = random.choice(DIGITS)
 	rand_upper = random.choice(UPCASE_CHARACTERS)
@@ -30,7 +29,7 @@ def generate(cloud_manager):
 	temp_pass = rand_digit + rand_upper + rand_lower
 
 	# fill the rest by selecting randomly from the combined list
-	for x in range(MAX_LEN - 4):
+	for x in range(MAX_LEN - 3):
 		temp_pass = temp_pass + random.choice(COMBINED_LIST)
 		
 		temp_pass_list = array.array('u', temp_pass)

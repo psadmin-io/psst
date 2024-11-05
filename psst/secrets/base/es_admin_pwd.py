@@ -1,7 +1,7 @@
 import random
 import array
 
-# Elasticsearch Proxy User Password (people)
+# Elasticsearch Admin User Password (esadmin)
 # Between 8 and 30 characters in length.
 # Only alphanumeric characters.
 
@@ -21,7 +21,7 @@ UPCASE_CHARACTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
 
 COMBINED_LIST = DIGITS + UPCASE_CHARACTERS + LOCASE_CHARACTERS
 
-def generate(cloud_manager):
+def generate():
 	# randomly select at least one character from each character set above
 	rand_digit = random.choice(DIGITS)
 	rand_upper = random.choice(UPCASE_CHARACTERS)
