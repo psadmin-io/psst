@@ -36,9 +36,9 @@ def secrets():
 @click.option('-s','--suffix',
               default="",
               help="Add a suffix to the secret names")
-def generate(secrets_list, secret_names, prefix, suffix):
+def generate(secrets_list, secret_name, prefix, suffix):
     """Generate a dictionary of secrets"""
-    secrets_dict = psst.secrets.util.generate_secrets(secrets_list, secret_names, prefix, suffix)
+    secrets_dict = psst.secrets.util.generate_secrets(secrets_list, secret_name, prefix, suffix)
     click.echo(json.dumps(secrets_dict, indent=4))
 
 @cli.group()
@@ -69,11 +69,11 @@ def vault():
 @click.option('-s','--suffix',
               default="",
               help="Add a suffix to the secret names")
-def create(type, vault_name, compartment_id, region, secrets_list, secret_names, prefix, suffix):
+def create(type, vault_name, compartment_id, region, secrets_list, secret_name, prefix, suffix):
     """Create a vault with generated secrets."""
     if type == "oci":
         ocicfg = psst.vault.oci.config(region)
-        secrets_dict = psst.secrets.util.generate_secrets(secrets_list, secret_names, prefix, suffix)
+        secrets_dict = psst.secrets.util.generate_secrets(secrets_list, secret_name, prefix, suffix)
         vault = psst.vault.oci.create(ocicfg, vault_name, compartment_id, secrets_dict)
 
 @vault.command("update")
@@ -102,10 +102,10 @@ def create(type, vault_name, compartment_id, region, secrets_list, secret_names,
 @click.option('-s','--suffix',
               default="",
               help="Add a suffix to the secret names")
-def update(type, vault, key, compartment_id, region, secrets_list, secret_names, prefix, suffix):
+def update(type, vault, key, compartment_id, region, secrets_list, secret_name, prefix, suffix):
     """Update a vault with generated secrets."""
 
     if type == "oci":
         ocicfg = psst.vault.oci.config(region)  # set region local here vs passing to function?        
-        secrets_dict = psst.secrets.util.generate_secrets(secrets_list, secret_names, prefix, suffix)
+        secrets_dict = psst.secrets.util.generate_secrets(secrets_list, secret_name, prefix, suffix)
         vault = psst.vault.oci.update(ocicfg, vault, key, compartment_id, secrets_dict)

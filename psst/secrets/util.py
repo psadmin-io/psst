@@ -1,13 +1,13 @@
 import psst.secrets
 from inspect import getmembers, ismodule
 
-def generate_secrets(secrets_list, secret_names, prefix, suffix):
+def generate_secrets(secrets_list, secret_name, prefix, suffix):
 
 	dict = {}
 	secrets = []
 
-	if secret_names:
-		for n in secret_names:
+	if secret_name:
+		for n in secret_name:
 			if n in dir(eval("psst.secrets." + secrets_list)):
 				secrets.append(n) 
 			else:
