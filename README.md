@@ -98,7 +98,7 @@ $ psst secrets generate --prefix "PRE_" --suffix "_SUF"
 
 ## vault
 
-Create or update vaults with generated passwords. Specify `--type` to use different kind of vaults.
+Create or update vaults with generated passwords. Specify `--type` to use different vault types.
 
 Supported types:
 
@@ -120,7 +120,7 @@ Commands:
 
 ### create
 
-Creates a new vault and populates with new generated secrets.
+Creates a new vault and populates it with generated secrets.
 
 ```
 vault_name=test-vault
@@ -136,7 +136,7 @@ psst vault create \
 
 ### update
 
-Updates an existing vault with new generated secrets.
+Updates an existing vault with generated secrets.
 
 ```
 vault_id=test-vault
@@ -155,7 +155,7 @@ psst vault update \
 # Installing
 ```
 cd psst
-pip install .
+pip install --user .
 ```
 
 # Setting up for development
