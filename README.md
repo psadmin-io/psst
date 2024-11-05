@@ -11,29 +11,34 @@ Options:
   
 
 Commands:
-  secrets  Working with PeopleSoft Environment secrets
+  secrets  Working with secrets for PeopleSoft
+  vault    Working with secrets in Vaults
 ```
 
 # Usage
+
 ## secrets
+
 ```bash
 # Generate All Secrets
 $ psst secrets generate
 {
-    "db_user_pwd": "WTM7Dx3ha9wpQbu1A60q7rhTP",
-    "access_pwd": "GuA2TyH0Hh62ZXvh9QeSC2dux",
-    "es_admin_pwd": "hEQ5dq7KfxcuSOqUBOazcp5ETvR3vs",
-    "es_proxy_pwd": "R2DWro330JmqyYkuN2WEvhJ50tzZVX",
-    "wls_admin_user_pwd": "v#%uNBJtA4D8$&yK#uzJ$RcqD!Vqiq",
-    "db_connect_pwd": "ir92R3mNTv1vAPe1cEYxtG8jI3YV5t",
-    "pia_gateway_admin_pwd": "EY8PkYawh4ZvB3O0VbHI3qqPZw3S5b",
-    "pia_webprofile_user_pwd": "x2i07XuWeWyj43Jbe4REJpBmEJYpU3",
-    "domain_conn_pwd": "WoVv1mWZ25cR93Mmc9m",
-    "pskey_password": "JNnPyqu7KF7es8ahGC13Si2BQDtN07"
+    "access_pwd": "zXZ0kpiXTn8rwkRzggKBzVAxR",
+    "db_admin_pwd": "-u54SJov0fzgv44pmrizA_-rzhaKyn",
+    "db_connect_pwd": "t4C0BNaNrW6SPWwrgMxWmi1ueqt1aI",
+    "db_user_pwd": "FmabnvU06h9zCP4aYD3H9KTTK",
+    "domain_conn_pwd": "qWnuRiGm0StaFXip72w",
+    "es_admin_pwd": "ppf56GVbYdegTndz5MAamGV0aKwqro",
+    "es_proxy_pwd": "SJzTRAwKVGeDSRfhM4QeYGVCQVIPZz",
+    "pia_gateway_admin_pwd": "HIyPDK3gn96XOTchJv8Zdt5hiSje8K",
+    "pia_webprofile_user_pwd": "w8BTTtNwfbkEBb8W8Xi6vX1icZz7OA",
+    "pskey_password": "RKGPonFu2Oju8agoP8NA0wVrbKvund",
+    "windows_password": "Pa-(.aQJIjm%|k0JBopN{TwZ2AC>pn",
+    "wls_admin_user_pwd": "1K84nxQhByDE1fVciy%ZZ61Wdd&K#o"
 }
 
 # Generate Specific Secrets
-$ psst secrets generate --name db_user_pwd --name access_pwd
+$ psst secrets generate --secret-name db_user_pwd --secret-name access_pwd
 {
     "db_user_pwd": "WTM7Dx3ha9wpQbu1A60q7rhTP",
     "access_pwd": "GuA2TyH0Hh62ZXvh9QeSC2dux"
@@ -41,8 +46,8 @@ $ psst secrets generate --name db_user_pwd --name access_pwd
 
 # Generate for Variable Usage
 $ secret_name=db_user_pwd
-$ secret_vaule=$(psst secrets generate --name $secret_name | jq -r .$secret_name)
-$ echo $secret_vaule
+$ secret_value=$(psst secrets generate --secret-name $secret_name | jq -r .$secret_name)
+$ echo $secret_value
 bRwoom0IoB0Fpuf2bsNZgOVfF
 ```
 
@@ -93,8 +98,29 @@ $ psst secrets generate --prefix "PRE_" --suffix "_SUF"
 
 ## vault
 
-### Create
-Creates a new vault and populates with new generated secrets.
+Create or update vaults with generated passwords. Specify `--type` to use different vault types.
+
+Supported types:
+
+- `oci`
+
+```
+$ psst vault --help
+Usage: psst vault [OPTIONS] COMMAND [ARGS]...
+
+  Working with secrets in Vaults
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  create  Create a vault with generated secrets.
+  update  Update a vault with generated secrets.
+```
+
+### create
+
+Creates a new vault and populates it with generated secrets.
 
 ```
 vault_name=test-vault
@@ -102,14 +128,15 @@ region=us-ashburn-1
 comp_id=ocid1.compartment.oc1....
 
 psst vault create \
-    --name $vault_name  \
+    --vault-name $vault_name  \
     --type oci \
     --region $region \
     --compartment-id $comp_id
 ```
 
-### Update
-Updaets an existing vault with new generated secrets.
+### update
+
+Updates an existing vault with generated secrets.
 
 ```
 vault_id=test-vault
@@ -128,7 +155,7 @@ psst vault update \
 # Installing
 ```
 cd psst
-pip install .
+pip install --user .
 ```
 
 # Setting up for development
