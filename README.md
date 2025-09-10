@@ -139,13 +139,13 @@ psst vault create \
 Updates an existing vault with generated secrets.
 
 ```
-vault_id=test-vault
+vault_id=ocid1.vault...
 key_id=ocid1.key...
 region=us-ashburn-1
 comp_id=ocid1.compartment.oc1...
 
 psst vault update \
-    --vault $vault_id \ 
+    --vault $vault_id \
     --key $key_id \
     --type oci \
     --region $region \
