@@ -109,3 +109,41 @@ def update(type, vault, key, compartment_id, region, secrets_list, secret_name, 
         ocicfg = psst.vault.oci.config(region)  # set region local here vs passing to function?        
         secrets_dict = psst.secrets.util.generate_secrets(secrets_list, secret_name, prefix, suffix)
         vault = psst.vault.oci.update(ocicfg, vault, key, compartment_id, secrets_dict)
+
+@vault.command("fetch")
+@click.option('-t','--type',
+              default="oci",
+              show_default=True,
+              help="The type of vault to create")
+@click.option('-v','--vault', required=True,
+              help="Vault ID (OCID for OCI, etc)")
+@click.option('-c','--compartment-id', required=True,
+              help="Set the compartment for the vault, key and secrets")
+@click.option('-r','--region',
+              help="Set the region, overriding the default cloud configuration value")
+# @click.option('-l', '--secrets-list', 
+#               default="base",
+#               show_default=True,
+#               help="The secrets list to generate [base,pcm,oci]")
+# @click.option('-sn', '--secret-name',
+#               help="Name of a specific secret to generate",
+#               multiple=True)
+@click.option('-p','--prefix',
+              default="",
+              help="Secret names search prefix")
+# @click.option('-s','--suffix',
+#               default="",
+#               help="Add a suffix to the secret names")
+def fetch(type, vault, compartment_id, region, prefix): #, suffix, secret_name, secrets_list):
+    """Fetch secrets from a vault."""
+
+    if type == "oci":
+        ocicfg = psst.vault.oci.config(region)  # set region local here vs passing to function?        
+        # secrets_dict = psst.secrets.util.generate_secrets(secrets_list, secret_name, prefix, suffix)
+        vault = psst.vault.oci.fetch(ocicfg, vault, compartment_id, prefix) # secrets_list, secret_name, suffix)
+        click.echo(json.dumps(vault, indent=4))
+
+    # TODO - loop through secret ids and get the current version
+    # TODO - use prefix
+    # TODO - use suffix
+    # TODO - use list of secret names
