@@ -1,148 +1,149 @@
-import oci
-import time
-import base64
-import re
+import json
+import click
 
-def config(region):
-    config = oci.config.from_file()
-    if region:
-        config["region"] = region
+import psst.secrets
+import psst.vault
 
-    return config
+class Config(object):
 
-def update(ocicfg, vault, key, compartment_id, secrets_dict):    
-    print("[Updating Vault]")
-    # TODO oci call to get vault and key name from id?
-    
-    print("[Creating Secrets]")
-    for name, content in secrets_dict.items():
-        create_secret(ocicfg, vault, key, compartment_id, name, content, name)
+    def __init__(self):
+        self.verbose = False
 
-def create(ocicfg, name, compartment_id, secrets_dict):
-    vault = create_vault(ocicfg, name, compartment_id)
-    key = create_key(ocicfg, "masterkey", vault.management_endpoint, compartment_id)
-    
-    print("[Creating Secrets]")
-    for name, content in secrets_dict.items():
-        create_secret(ocicfg, vault.id, key.id, compartment_id, name, content, name)
+pass_config = click.make_pass_decorator(Config, ensure=True)
 
-def create_vault(ocicfg, name, compartment_id):
-    print("[Creating Vault]")
-    key_management_client = oci.key_management.KmsVaultClient(ocicfg)
+@click.group(no_args_is_help=True)
+@pass_config
+def cli(config):
+    """PeopleSoft Secrets Tool"""
+    pass    
 
-    create_vault_response = key_management_client.create_vault(
-        create_vault_details=oci.key_management.models.CreateVaultDetails(
-            compartment_id=compartment_id,
-            display_name=name,
-            vault_type="DEFAULT"),
-            # TODO - tags?
-            # defined_tags={
-            #     'EXAMPLE_KEY_Ae1wB': {
-            #         'EXAMPLE_KEY_DgAol': 'EXAMPLE--Value'}},
-            # freeform_tags={
-            #     'EXAMPLE_KEY_SsQ9R': 'EXAMPLE_VALUE_FmkBdwTrzZiqPtjzqoXC'}
-        )
+@cli.group()
+def secrets():
+    """Working with secrets"""
+    pass
 
-    for attempt in range(20):
-        print("Vault status ({}): ".format(attempt), end='')
-        vault = key_management_client.get_vault(vault_id=create_vault_response.data.id)
-        print(vault.data.lifecycle_state)
+@secrets.command("generate")
+@click.option('-l', '--secrets-list', 
+              default="base",
+              show_default=True,
+              help="The secrets list to generate [base,pcm,oci]")
+@click.option('-sn', '--secret-name',
+              help="Name of a specific secret to generate",
+              multiple=True)
+@click.option('-p','--prefix',
+              default="",
+              help="Add a prefix to the secret names")
+@click.option('-s','--suffix',
+              default="",
+              help="Add a suffix to the secret names")
+def generate(secrets_list, secret_name, prefix, suffix):
+    """Generate a dictionary of secrets"""
+    secrets_dict = psst.secrets.util.generate_secrets(secrets_list, secret_name, prefix, suffix)
+    click.echo(json.dumps(secrets_dict, indent=4))
 
-        if vault.data.lifecycle_state == "ACTIVE":
-            break
-        else:
-            time.sleep(15)
+@cli.group()
+def vault():
+    """Working with secrets in Vaults"""
+    pass
 
-    if vault.data.lifecycle_state != "ACTIVE":
-        raise SystemExit("ERROR: There was an issue creating the vault. [{}]".format(vault.data.lifecycle_state))
+@vault.command("create")
+@click.option('-t','--type', default="oci",
+              show_default=True,
+              help="The type of vault to create")
+@click.option('-vn','--vault-name', required=True,
+              help="The name of the vault")
+@click.option('-c','--compartment-id', required=True,
+              help="Set the compartment for the vault, key and secrets")
+@click.option('-r','--region',
+              help="Set the region, overriding the default cloud configuration value")
+@click.option('-l', '--secrets-list', 
+              default="base",
+              show_default=True,
+              help="The secrets list to generate [base,pcm,oci]")
+@click.option('-sn', '--secret-name',
+              help="Name of a specific secret to generate",
+              multiple=True)
+@click.option('-p','--prefix',
+              default="",
+              help="Add a prefix to the secret names")
+@click.option('-s','--suffix',
+              default="",
+              help="Add a suffix to the secret names")
+def create(type, vault_name, compartment_id, region, secrets_list, secret_name, prefix, suffix):
+    """Create a vault with generated secrets."""
+    if type == "oci":
+        ocicfg = psst.vault.oci.config(region)
+        secrets_dict = psst.secrets.util.generate_secrets(secrets_list, secret_name, prefix, suffix)
+        vault = psst.vault.oci.create(ocicfg, vault_name, compartment_id, secrets_dict)
 
-    print("Vault created: {}".format(create_vault_response.data.id))
+@vault.command("update")
+@click.option('-t','--type',
+              default="oci",
+              show_default=True,
+              help="The type of vault to create")
+@click.option('-v','--vault', required=True,
+              help="Vault ID (OCID for OCI, etc)")
+@click.option('-k','--key', required=True,
+              help="Key ID (OCID for OCI, etc)")
+@click.option('-c','--compartment-id', required=True,
+              help="Set the compartment for the vault, key and secrets")
+@click.option('-r','--region',
+              help="Set the region, overriding the default cloud configuration value")
+@click.option('-l', '--secrets-list', 
+              default="base",
+              show_default=True,
+              help="The secrets list to generate [base,pcm,oci]")
+@click.option('-sn', '--secret-name',
+              help="Name of a specific secret to generate",
+              multiple=True)
+@click.option('-p','--prefix',
+              default="",
+              help="Add a prefix to the secret names")
+@click.option('-s','--suffix',
+              default="",
+              help="Add a suffix to the secret names")
+def update(type, vault, key, compartment_id, region, secrets_list, secret_name, prefix, suffix):
+    """Update a vault with generated secrets."""
 
-    return vault.data
+    if type == "oci":
+        ocicfg = psst.vault.oci.config(region)  # set region local here vs passing to function?        
+        secrets_dict = psst.secrets.util.generate_secrets(secrets_list, secret_name, prefix, suffix)
+        vault = psst.vault.oci.update(ocicfg, vault, key, compartment_id, secrets_dict)
 
-def create_key(ocicfg, name, vault_mgmt, compartment_id):
-    print("[Creating Key]")
+@vault.command("fetch")
+@click.option('-t','--type',
+              default="oci",
+              show_default=True,
+              help="The type of vault to create")
+@click.option('-v','--vault', required=True,
+              help="Vault ID (OCID for OCI, etc)")
+@click.option('-c','--compartment-id', required=True,
+              help="Set the compartment for the vault, key and secrets")
+@click.option('-r','--region',
+              help="Set the region, overriding the default cloud configuration value")
+# @click.option('-l', '--secrets-list', 
+#               default="base",
+#               show_default=True,
+#               help="The secrets list to generate [base,pcm,oci]")
+# @click.option('-sn', '--secret-name',
+#               help="Name of a specific secret to generate",
+#               multiple=True)
+@click.option('-p','--prefix',
+              default="",
+              help="Secret names search prefix")
+# @click.option('-s','--suffix',
+#               default="",
+#               help="Add a suffix to the secret names")
+def fetch(type, vault, compartment_id, region, prefix): #, suffix, secret_name, secrets_list):
+    """Fetch secrets from a vault."""
 
-    key_management_client = oci.key_management.KmsManagementClient(ocicfg, vault_mgmt)
+    if type == "oci":
+        ocicfg = psst.vault.oci.config(region)  # set region local here vs passing to function?        
+        # secrets_dict = psst.secrets.util.generate_secrets(secrets_list, secret_name, prefix, suffix)
+        vault = psst.vault.oci.fetch(ocicfg, vault, compartment_id, prefix) # secrets_list, secret_name, suffix)
+        click.echo(json.dumps(vault, indent=4))
 
-    create_key_response = key_management_client.create_key(
-        create_key_details=oci.key_management.models.CreateKeyDetails(
-            compartment_id=compartment_id,
-            display_name=name,
-            key_shape=oci.key_management.models.KeyShape(
-                algorithm="AES",
-                length=32,
-                curve_id="NIST_P384"),
-            # defined_tags={
-            #     'EXAMPLE_KEY_2F9ex': {
-            #         'EXAMPLE_KEY_NSxF4': 'EXAMPLE--Value'}},
-            # freeform_tags={
-            #     'EXAMPLE_KEY_qmyfO': 'EXAMPLE_VALUE_mj8CwDqoxWLDA4qUDqZu'},
-            protection_mode="SOFTWARE")
-        )
-
-    for attempt in range(10):
-        print("Key status ({}): ".format(attempt), end='')
-        key = key_management_client.get_key(key_id=create_key_response.data.id)
-        print(key.data.lifecycle_state)
-
-        if key.data.lifecycle_state == "ENABLED":
-            break
-        else:
-            time.sleep(10)
-
-    if key.data.lifecycle_state != "ENABLED":
-        raise SystemExit("ERROR: There was an issue creating the key. [{}]".format(key.data.lifecycle_state))
-
-    return key.data
-
-def create_secret(ocicfg, vault_id, key_id, compartment_id, secret_name, secret_content, secret_descr):
-    validate_secret_name(secret_name)
-    vault_client = oci.vault.VaultsClient(ocicfg)
-    # response = vaults_client_composite.create_secret_and_wait_for_state(create_secret_details=secrets_details,
-    #                                         wait_for_states=[oci.vault.models.Secret.LIFECYCLE_STATE_ACTIVE])
-    create_secret_response = vault_client.create_secret(
-        create_secret_details=oci.vault.models.CreateSecretDetails(
-            compartment_id=compartment_id,
-            secret_content=oci.vault.models.Base64SecretContentDetails(
-                content_type="BASE64",
-                name=secret_name,
-                stage="CURRENT",
-                content=base64.b64encode(secret_content.encode('ascii')).decode('ascii') # str > bytes > base64 > str
-            ),
-            secret_name=secret_name,
-            vault_id=vault_id,
-            key_id=key_id,
-            description=secret_descr
-            # defined_tags={
-            #     'EXAMPLE_KEY_L44xi': {
-            #             'EXAMPLE_KEY_5XG0E': 'EXAMPLE--Value'}},
-            # freeform_tags={
-            #     'EXAMPLE_KEY_Z8F1a': 'EXAMPLE_VALUE_3RMNoPISLXn1pYITgfle'},
-            
-            # metadata={
-            #     'EXAMPLE_KEY_XXKFm': 'EXAMPLE--Value'},
-        )
-    )
-    
-    for attempt in range(10):
-        print("Secret '" + secret_name + "' status ({}): ".format(attempt), end='')
-        secret = vault_client.get_secret(secret_id=create_secret_response.data.id)
-        print(secret.data.lifecycle_state)
-
-        if secret.data.lifecycle_state == "ACTIVE":
-            break
-        else:
-            time.sleep(10)
-
-    if secret.data.lifecycle_state != "ACTIVE":
-        raise SystemExit("ERROR: There was an issue creating secret " + secret_name + ". [{}]".format(secret.data.lifecycle_state))
-
-    return create_secret_response.data
-
-def validate_secret_name(secret_name):
-    # alphanumeric, _, -, < 255 length
-    regex = r'^[\w-]+$'
-    
-    if not ((re.search(regex, secret_name, re.IGNORECASE)) and len(secret_name) <= 255):    
-        raise ValueError(f"Secret name '{secret_name}' is not valid. An OCI Secret must contain only alphanumeric characters, underscores or hyphens, and should not exceed 255 characters.")
+    # TODO - loop through secret ids and get the current version
+    # TODO - use prefix
+    # TODO - use suffix
+    # TODO - use list of secret names
