@@ -163,8 +163,8 @@ def fetch(ocicfg, vault_id, compartment_id, prefix):
     import oci
 
     print(f"Listing all secrets in vault: {vault_id}")
-    secrets_map = {}
-    
+    secrets_list = []
+
     try:
         # 1. Create a client for Vault management operations
         vault_client = oci.vault.VaultsClient(ocicfg)
@@ -177,11 +177,42 @@ def fetch(ocicfg, vault_id, compartment_id, prefix):
             sort_by="NAME"
         )
 
-        # 3. Process the results into a dictionary
+        if not list_secrets_response.data:
+            print("No secrets found in the vault.")
+            return secrets_list
+
+        # 2. Loop through the results
         for secret in list_secrets_response.data:
-            secrets_map[secret.secret_name] = secret.id
+            # 3. Create a dictionary for the current secret and append it to the list
+            secrets_list.append({
+                'name': secret.secret_name,
+                'id': secret.id
+            })      
+
+        # --- Part 2: Loop through the list and fetch the secret content ---
+        # Create vaultsclient using the default config file (\.oci\config) for auth to the API        
+        vaultclient = oci.vault.VaultsClient(ocicfg)     
+        final_list = []
+
+        print(f"  > Fetching content for matching secrets...")
+        for secret in secrets_list:
+            # Get the secret
+            secretclient = oci.secrets.SecretsClient(ocicfg) # TODO move above?
+            secretcontents = secretclient.get_secret_bundle(secret_id=secret['id'])
+            
+            # Decode the secret from base64 and print
+            keybase64 = secretcontents.data.secret_bundle_content.content
+            keybase64bytes = keybase64.encode("ascii")
+            keybytes = base64.b64decode(keybase64bytes)
+            key = keybytes.decode("ascii")
+            # print(key)             
+            final_list.append({
+                'name': secret['name'],
+                'id': secret['id'],
+                'content': key
+            })  
 
     except oci.exceptions.ServiceError as e:
         print(f"ERROR: An OCI service error occurred: {e.status} {e.message}")
 
-    return secrets_map
+    return final_list
