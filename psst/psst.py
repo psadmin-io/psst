@@ -114,13 +114,19 @@ def update(type, vault, key, compartment_id, region, secrets_list, secret_name, 
 @click.option('-t','--type',
               default="oci",
               show_default=True,
-              help="The type of vault to create")
+              help="The type of vault to fetch from",
+              type=click.Choice(['oci'], case_sensitive=False))
 @click.option('-v','--vault', required=True,
               help="Vault ID (OCID for OCI, etc)")
 @click.option('-c','--compartment-id', required=True,
               help="Set the compartment for the vault, key and secrets")
 @click.option('-r','--region',
               help="Set the region, overriding the default cloud configuration value")
+@click.option('-o','--output',
+              default="json",
+              show_default=True,
+              help="Output format type",
+              type=click.Choice(['json', 'table', 'dms'], case_sensitive=False))
 # @click.option('-l', '--secrets-list', 
 #               default="base",
 #               show_default=True,
@@ -134,16 +140,23 @@ def update(type, vault, key, compartment_id, region, secrets_list, secret_name, 
 # @click.option('-s','--suffix',
 #               default="",
 #               help="Add a suffix to the secret names")
-def fetch(type, vault, compartment_id, region, prefix): #, suffix, secret_name, secrets_list):
-    """Fetch secrets from a vault."""
-
+def fetch(type, vault, compartment_id, region, output, prefix): #, suffix, secret_name, secrets_list):
+    """Fetch secrets from a vault."""    
     if type == "oci":
         ocicfg = psst.vault.oci.config(region)  # set region local here vs passing to function?        
         # secrets_dict = psst.secrets.util.generate_secrets(secrets_list, secret_name, prefix, suffix)
-        vault = psst.vault.oci.fetch(ocicfg, vault, compartment_id, prefix) # secrets_list, secret_name, suffix)
-        click.echo(json.dumps(vault, indent=4))
+        vault_list = psst.vault.oci.fetch(ocicfg, vault, compartment_id, prefix) # secrets_list, secret_name, suffix)
+    
+    """Format output."""
+    if output == "json":
+        output_text = json.dumps(vault_list, indent=2)
+    if output == "dms":
+        output_text = psst.vault.util.generate_dms(vault_list, prefix)
+    
+    """Print output."""
+    click.echo(output_text)
 
-    # TODO - loop through secret ids and get the current version
+    # TODO - add output table
     # TODO - use prefix
     # TODO - use suffix
     # TODO - use list of secret names
